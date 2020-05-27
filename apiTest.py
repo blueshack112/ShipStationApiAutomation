@@ -19,7 +19,7 @@ apiAuth = base64.b64encode(apiAuth.encode('utf-8'))
 apiAuth = "Basic {}".format(str(apiAuth, 'utf-8'))
 
 payload = {}
-payload['orderStatus'] = 'shipped'
+payload['orderStatus'] = 'awaiting_shipment'
 headers = {
   'Host': 'ssapi.shipstation.com',
   'Authorization': apiAuth
