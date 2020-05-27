@@ -3,10 +3,10 @@ import base64
 import requests
 import json
 
-url = "https://ssapi.shipstation.com/orders"
+ordersURL = "https://ssapi.shipstation.com/orders"
 
 # Loading configurations
-with open('Doc/shipstation.yaml', 'r') as stream:
+with open('shipstation.yaml', 'r') as stream:
     try:
         config = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
@@ -24,10 +24,10 @@ headers = {
   'Authorization': apiAuth
 }
 
-request = requests.request("GET", url, headers=headers, data = payload)
+request = requests.request("GET", ordersURL, headers=headers, data = payload)
 
 data = json.loads(request.text)
 
-with open('Out/data.json', 'w') as f:
+with open('data.json', 'w') as f:
     json.dump(data, f, indent=3)
 
