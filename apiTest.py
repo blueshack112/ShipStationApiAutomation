@@ -26,7 +26,7 @@ headers = {
 }
 
 # Note: Don't delete: data is for posts and params is for gets
-request = requests.request("GET", ordersURL, headers=headers, params = payload)
+request = requests.request("GET", ordersURL, headers=headers, params=payload)
 
 data = json.loads(request.text)
 
