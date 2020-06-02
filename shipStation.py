@@ -138,7 +138,7 @@ def main(argv):
     
     # Let's just save for now
     with open(os.path.join(outputDIRPath, 'test_data.json'), 'w') as f:
-        json.dump(data, f, indent=3)
+        json.dump(ordersList, f, indent=3)
 
 def loadConfig (configPath):
     """
