@@ -14,6 +14,7 @@ with open('shipstation.yaml', 'r') as stream:
 
 apiKey = config['user']
 apiSecret = config['token']
+
 apiAuth = "{}:{}".format(apiKey, apiSecret)
 apiAuth = base64.b64encode(apiAuth.encode('utf-8'))
 apiAuth = "Basic {}".format(str(apiAuth, 'utf-8'))

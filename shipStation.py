@@ -6,7 +6,7 @@ Suredone Download
 @author: Hassan Ahmed
 @contact: ahmed.hassan.112.ha@gmail.com
 @owner: Patrick Mahoney
-@version: 0.0.2
+@version: 0.0.3
 
 This module is created to use the Suredone API to create a custom CSV of store's 
 product and sales records, and get it downloaded
@@ -96,6 +96,7 @@ import os
 import getopt
 import platform
 import requests
+import base64
 import yaml
 import json
 import pandas as pd
@@ -129,7 +130,89 @@ def main(argv):
     LOGGER.writeLog("Download path: {}.".format(outputDIRPath), localFrame.f_lineno, severity='normal')
     LOGGER.writeLog("Verbose: {}.\n".format(verbose), localFrame.f_lineno, severity='normal')
 
+    # Get authentication string
+    authString = loadConfig(configPath)
 
+    # Make the api call to list all the orders with "awaiting_shipment" order status
+    ordersList = listOrders(authString)
+    
+    # Let's just save for now
+    with open(os.path.join(outputDIRPath, 'test_data.json'), 'w') as f:
+        json.dump(data, f, indent=3)
+
+def loadConfig (configPath):
+    """
+    Function that parses the configuration file and reads user and apiToken variables
+
+    Parameters
+    ----------
+        - configPath : str
+            Path to the configuration file
+    
+    Returns
+    -------
+        - authString : str
+            API key and API Secret for shipstation account merged and processed to form the stardardized authentication string that will be used during api calls
+    """
+    # Loading configurations
+    with open(configPath, 'r') as stream:
+        try:
+            config = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            LOGGER.writeLog("Error while loading YAML.", localFrame.f_lineno, severity='code-breaker', data={'code':3, 'error':exc})
+    
+    # Try to read the user and api_token from suredone_api set in the settings
+    # Print error that the settings weren't found and exit
+    try:
+        apiKey = config['api-key']
+        apiSecret = config['api-secret']
+    except KeyError as exc:
+        LOGGER.writeLog("Not found user or token in config file.", localFrame.f_lineno, severity='code-breaker', data={'code':3, 'error':exc})
+        exit()
+    
+    # Pre-process the apiKey and apiSecret to form the authString
+    authString = "{}:{}".format(apiKey, apiSecret)
+    authString = base64.b64encode(authString.encode('utf-8'))
+    authString = "Basic {}".format(str(authString, 'utf-8'))
+    return authString
+
+def listOrders(authString, filters={'orderStatus':'awaiting_shipment'}, url="https://ssapi.shipstation.com/orders"):
+    """
+    This function will prepare the headers as well as params/data and make the api
+    call to the ship station orders url.
+
+    Parameters
+    ----------
+        - authString : str
+            The custom download path that needs to be validated
+        - filters : dict
+            A dictionary that will contain all the filters we want to apply.
+        - url
+            The endpoint for the api call
+    Returns
+    -------
+        - jsonData : json
+            A json element containing all the orders it recieved
+    """
+    # Prepare the header
+    headers = {
+        'Host': 'ssapi.shipstation.com',
+        'Authorization': authString
+    }
+    payload = {}
+
+    # Iterate though filters and add each filter to payload
+    for key, value in filters.items():
+        payload[key] = value
+    
+    # Note: Don't delete: data is for posts and params is for gets
+    orderRequest = requests.request("GET", url, headers=headers, params=payload)
+
+    # Successful response codes
+    if orderRequest.status_code in (200, 201, 204):
+        jsonData = json.loads(orderRequest.text)
+
+    return jsonData
 
 def parseArgs(argv):
     """
@@ -273,6 +356,9 @@ def validateDownloadPath(path):
     localFrame =  inspect.currentframe()
     if not os.path.exists(path):
         LOGGER.writeLog("The download path defined does not exist. Make sure that the path is reachable. Switching to default download paths...", localFrame.f_lineno, severity='warning')
+        return False
+    if not os.path.isdir(path):
+        LOGGER.writeLog("The specified download path is a file. Make sure that a directory is specified. Switching to default download paths...", localFrame.f_lineno, severity='warning')
         return False
     return True
 
