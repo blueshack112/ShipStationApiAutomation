@@ -194,6 +194,7 @@ def listOrders(authString, filters={'orderStatus':'awaiting_shipment'}, url="htt
         - jsonData : json
             A json element containing all the orders it recieved
     """
+    localFrame = inspect.currentframe()
     # Prepare the header
     headers = {
         'Host': 'ssapi.shipstation.com',
@@ -211,6 +212,14 @@ def listOrders(authString, filters={'orderStatus':'awaiting_shipment'}, url="htt
     # Successful response codes
     if orderRequest.status_code in (200, 201, 204):
         jsonData = json.loads(orderRequest.text)
+    else:
+        LOGGER.writeLog("The api request produced an unsuccessful status code. Details follow below.", localFrame.f_lineno, severity='code-breaker', data={'code':1})
+        LOGGER.writeLog("Status code from the reuqest: {}.".format(orderRequest.status_code), localFrame.f_lineno, severity='code-breaker', data={'code':1})
+        LOGGER.writeLog("Response text: .".format(orderRequest.text), localFrame.f_lineno, severity='code-breaker', data={'code':1})
+        LOGGER.writeLog("Url: {}.".format(url), localFrame.f_lineno, severity='code-breaker', data={'code':1})
+        LOGGER.writeLog("Headers: {}.".format(headers), localFrame.f_lineno, severity='code-breaker', data={'code':1})
+        LOGGER.writeLog("Payload: {}.".format(payload), localFrame.f_lineno, severity='code-breaker', data={'code':1})
+        LOGGER.writeLog("*RESPONSE DETAILS END*", localFrame.f_lineno, severity='code-breaker', data={'code':1})
 
     return jsonData
 
@@ -393,7 +402,6 @@ def getDefaultDownloadPath():
 
     LOGGER.writeLog("A download directory could not be specified in default locations!\nSpecify a path to the directory using (-o --output) argument.", localFrame.f_lineno, severity='code-breaker', data={'code':1})
     exit()
-
 
 """ Custom logging class """
 class Logger(object):
