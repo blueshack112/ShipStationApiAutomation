@@ -1,95 +1,46 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-Suredone Download
+ShipStation API for Order Automation
 
 @author: Hassan Ahmed
 @contact: ahmed.hassan.112.ha@gmail.com
 @owner: Patrick Mahoney
-@version: 0.0.3
+@version: 0.0.4
 
-This module is created to use the Suredone API to create a custom CSV of store's 
-product and sales records, and get it downloaded
-The CSV currently intended to download has the following columns:
-    - total_stock
-    - TODO: Document this part
-    
-Usage:
-    - TODO: Document this part
-    The script is capable of running without any argument provided. All behavorial
-    variables will be reset to default.
-    
-    $ python3 suredone_download.py [options]
-
-Parameters/Options:
-    - TODO: Document this part
-    -h  | --help            : View usage help and examples
-    -d  | --delimter        : Delimiter to be used as the separator in the CSV file saved by the script
-        |                       - Default is comma ','.
-    -f  | --file            : Path to the configuration file containing API keys
-        |                       - Default in %APPDATA%/local/suredone.yaml on Window
-        |                       - Default in $HOME/suredone.yaml
-    -o  | --output          : Path for the output file to be downloaded at
-        |                       - Default in %USERPROFILE%/Downloads/SureDone_Downloads_yyyy_mm_dd-hh-mm-ss.csv
-        |                       - Default in $HOME/downloads/SureDone_Downloads_yyyy_mm_dd-hh-mm-ss.csv
-    -p  | --preserve        : Do not delete older files that start with 'SureDone_' in the download directory
-        |                       - This funciton is limited to default download locations only.
-        |                       - Defining custom output path will render this feature useless.
-    -v  | --verbose         : Show outputs in terminal as well as log file
-    -w  | --wait            : Custom timeout for requests invoked by the script (specified in seconds)
-        |                       - Default: 15 seconds
-
-Example:
-    - TODO: Document this part
-    $ python3 suredone_download.py
-
-    $ python3 suredone_download.py -f [config.yaml]
-    $ python3 suredone_download.py -file [config.yaml]
-
-    $ python3 suredone_download.py -f [config.yaml] -o [output.csv]
-    $ python3 suredone_download.py -file [config.yaml] --output_file [output.csv]
-
-    $ python3 suredone_download.py -f [config.yaml] -o [output.csv] -v -p
-    $ python3 suredone_download.py -file [config.yaml] --output_file [output.csv] --verbose --preserve
+This script is written to automate the orders placed on ShipStation using ShipStation's API
+Currently, this script gets a list of all the orders from ShipStation where the order status is "awaiting_shipment".
+TODO: Define further functionality after receiving from Patrick 
 """
-
-# Help message
-HELP_MESSAGE = """
-- TODO: Document this part
-Usage:
+HELP_MESSAGE = """Usage:
     The script is capable of running without any argument provided. All behavorial
     variables will be reset to default.
     
-    $ python3 suredone_download.py [options]
+    $ python3 shipstation.py [options]
 
 Parameters/Options:
+    - TODO: Update as the file is scripted more
     -h  | --help            : View usage help and examples
-    -d  | --delimter        : Delimiter to be used as the separator in the CSV file saved by the script
-        |                       - Default is comma ','.
     -f  | --file            : Path to the configuration file containing API keys
-        |                       - Default in %APPDATA%/local/suredone.yaml on Window
-        |                       - Default in $HOME/suredone.yaml
-    -o  | --output          : Path for the output file to be downloaded at
-        |                       - Default in %USERPROFILE%/Downloads/SureDone_Downloads_yyyy_mm_dd-hh-mm-ss.csv
-        |                       - Default in $HOME/downloads/SureDone_Downloads_yyyy_mm_dd-hh-mm-ss.csv
-    -p  | --preserve        : Do not delete older files that start with 'SureDone_' in the download directory
-        |                       - This funciton is limited to default download locations only.
-        |                       - Defining custom output path will render this feature useless.
+        |                       - Default in %APPDATA%/local/shipstation.yaml on Windows
+        |                       - Default in $HOME/shipstation.yaml on Linux
+    -o  | --output          : Path tothe directory where the output of this script needs to be saved
+        |                       - Default in %USERPROFILE%/Downloads/shipstation.json
+        |                       - Default in $HOME/downloads//shipstation.json
+        |                       - TODO: These defaults are subject to change
     -v  | --verbose         : Show outputs in terminal as well as log file
-    -w  | --wait            : Custom timeout for requests invoked by the script (specified in seconds)
-        |                       - Default: 15 seconds
 
 Example:
-    $ python3 suredone_download.py
+    $ python3 shipstation.py
 
-    $ python3 suredone_download.py -f [config.yaml]
-    $ python3 suredone_download.py -file [config.yaml]
+    $ python3 shipstation.py -f [shipstation.yaml]
+    $ python3 shipstation.py -file [shipstation.yaml]
 
-    $ python3 suredone_download.py -f [config.yaml] -o [output.csv]
-    $ python3 suredone_download.py -file [config.yaml] --output_file [output.csv]
+    $ python3 shipstation.py -f [shipstation.yaml] -o [Docs/]
+    $ python3 shipstation.py -file [shipstation.yaml] --output_file [output.csv]
 
-    $ python3 suredone_download.py -f [config.yaml] -o [output.csv] -v -p
-    $ python3 suredone_download.py -file [config.yaml] --output_file [output.csv] --verbose --preserve
+    $ python3 shipstation.py -f [shipstation.yaml] -o [Docs/] -v
+    $ python3 shipstation.py -file [shipstation.yaml] --output_file [Docs/] --verbose
 """
 import sys
 import os
@@ -137,7 +88,7 @@ def main(argv):
     ordersList = listOrders(authString)
     
     # Let's just save for now
-    with open(os.path.join(outputDIRPath, 'test_data.json'), 'w') as f:
+    with open(os.path.join(outputDIRPath, 'shipstation.json'), 'w') as f:
         json.dump(ordersList, f, indent=3)
 
 def loadConfig (configPath):
