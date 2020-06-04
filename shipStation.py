@@ -6,7 +6,7 @@ ShipStation API for Order Automation
 @author: Hassan Ahmed
 @contact: ahmed.hassan.112.ha@gmail.com
 @owner: Patrick Mahoney
-@version: 0.0.4
+@version: 0.0.5
 
 This script is written to automate the orders placed on ShipStation using ShipStation's API
 Currently, this script gets a list of all the orders from ShipStation where the order status is "awaiting_shipment".
@@ -90,6 +90,7 @@ def main(argv):
     # Let's just save for now
     with open(os.path.join(outputDIRPath, 'shipstation.json'), 'w') as f:
         json.dump(ordersList, f, indent=3)
+    LOGGER.writeLog("Saved file in {}".format(os.path.join(outputDIRPath, 'shipstation.json'), 'w'), localFrame.f_lineno, severity='normal')
 
 def loadConfig (configPath):
     """
@@ -105,6 +106,7 @@ def loadConfig (configPath):
         - authString : str
             API key and API Secret for shipstation account merged and processed to form the stardardized authentication string that will be used during api calls
     """
+    localFrame = inspect.currentframe()
     # Loading configurations
     with open(configPath, 'r') as stream:
         try:
@@ -452,10 +454,10 @@ class Logger(object):
             toWrite = ' ' + indicator + '  |  ' + lineNumber + '  | ' + timestamp + ': ' + message
             
             if data['code'] == 2: # Response recieved but unsuccessful
-                details = '\n[ErrorDetailsStart]\n' + data['response'] + '\n[ErrorDetailsEnd]'
+                details = '\n[ErrorDetailsStart]\n' + str(data['response']) + '\n[ErrorDetailsEnd]'
                 toWrite = toWrite + details
             elif data['code'] == 3: # YAML loading error
-                details = '\n[ErrorDetailsStart]\n' + data['error'] + '\n[ErrorDetailsEnd]'
+                details = '\n[ErrorDetailsStart]\n' + str(data['error']) + '\n[ErrorDetailsEnd]'
                 toWrite = toWrite + details
         
         # Write out the message
